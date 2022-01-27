@@ -1,17 +1,38 @@
 <script setup lang="ts">
-import SvgIcon from "@/components/SvgIcon/index.vue"
-
-const title = ref("I want to study typescript")
+import SvgIcon from './SvgIcon/index.vue'
+import { ref } from 'vue'
+import { useDark, useToggle } from '@vueuse/core';
+import { useAppStore, useUserStore } from '@/store';
+import { IconMoonFill, IconSunFill } from '@arco-design/web-vue/es/icon';
+const title = ref('I want to study typescript')
 // 检测浏览器系统主题
-const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)")
-
-const ThemeChange = (val: boolean) => {
+const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
+const appStore = useAppStore()
+const useStore = useUserStore()
+const theme = computed(() => {
+  return appStore.theme
+})
+const isDark = useDark({
+  selector: 'body',
+  attribute: 'arco-theme',
+  valueDark: 'dark',
+  valueLight: 'light',
+  storageKey: 'arco-theme',
+  onChanged(dark: boolean) {
+    appStore.toggleTheme(dark);
+  },
+})
+const toggleTheme = useToggle(isDark)
+// const setVisible = () => {
+//   appStore.updateSettings({ globalSettings: true });
+// };
+const ThemeChange = (val: string | number | boolean) => {
   if (!val) {
-    document.documentElement.classList.add("dark")
-    document.body.setAttribute("arco-theme", "dark")
+    document.documentElement.classList.add('dark')
+    document.body.setAttribute('arco-theme', 'dark')
   } else {
-    document.body.removeAttribute("arco-theme")
-    document.documentElement.classList.remove("dark")
+    document.body.removeAttribute('arco-theme')
+    document.documentElement.classList.remove('dark')
   }
 }
 </script>
@@ -26,10 +47,8 @@ const ThemeChange = (val: boolean) => {
           class="py-4 border-b border-slate-900/10 lg:px-8 lg:border-0 dark:border-slate-300/10 px-4"
         >
           <div class="relative flex items-center text-2xl sm:text-2xl font-blimone">
-            <a
-              class="mr-3 flex-none w-[2.0625rem] overflow-hidden md:w-auto leading-6 dark:text-slate-200"
-              href="https://github.com/MaleWeb"
-            >Fast-Vue3</a>
+            <router-link to="/" class="mr-3 flex-none w-[2.0625rem] overflow-hidden md:w-auto leading-6 dark:text-slate-200">Fast-Vue3</router-link>
+      
             <div class="relative hidden lg:flex items-center ml-auto">
               <nav class="text-sm leading-6 font-semibold text-slate-700 dark:text-slate-200">
                 <ul class="flex space-x-8">
@@ -53,14 +72,26 @@ const ThemeChange = (val: boolean) => {
               <div
                 class="flex items-center border-l border-slate-200 ml-6 pl-6 dark:border-slate-800"
               >
-                <a-space size="large">
-                  <a-switch
-                    type="round"
-                    checked-color="#86909c"
-                    unchecked-color="#253250"
-                    @change="ThemeChange"
-                  />
-                </a-space>
+                <a-tooltip
+                  :content="
+                    theme === 'light'
+                      ? '设置暗黑主题'
+                      : '设置明亮主题'
+                  "
+                >
+                  <a-button
+                    size="mini"
+                    class="nav-btn"
+                    type="outline"
+                    :shape="'circle'"
+                    @click="toggleTheme"
+                  >
+                    <template #icon>
+                      <icon-moon-fill v-if="theme === 'dark'" />
+                      <icon-sun-fill v-else />
+                    </template>
+                  </a-button>
+                </a-tooltip>
                 <a
                   href="https://github.com/MaleWeb/fast-vue3"
                   target="_bank"

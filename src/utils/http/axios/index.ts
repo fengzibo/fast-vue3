@@ -1,39 +1,28 @@
-/*
- * @GitHub: https://github.com/MaleWeb/fast-vue3
- * @version:
- * @Author: 扫地盲僧
- * @Date: 2022-01-19 20:02:21
- * @LastEditors: BlindMonk
- * @LastEditTime: 2022-01-19 20:47:05
- */
-
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios"
-import qs from "qs"
-import { showMessage } from "./status";
-// 字节的Arco.design框架，按需修改
-import { Message } from "@arco-design/web-vue"
-import { IResponse, ILogin } from "./type"
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import qs from 'qs'
+import { showMessage } from './status'
+import { IResponse, ILogin } from './type'
+import { API_BASE_URL } from '../../../../config/constant'
 
 // 如果请求话费了超过 `timeout` 的时间，请求将被中断
-axios.defaults.timeout = 5000;
+axios.defaults.timeout = 5000
 // 表示跨域请求时是否需要使用凭证
-axios.defaults.withCredentials = false;
+axios.defaults.withCredentials = false
 // axios.defaults.headers.common['token'] =  AUTH_TOKEN
 // 允许跨域
-axios.defaults.headers.post["Access-Control-Allow-Origin-Type"] = "*";
+axios.defaults.headers.post['Access-Control-Allow-Origin-Type'] = '*'
 
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: process.env.VUE_APP_BASE_URL + "/api/",
+  baseURL: API_BASE_URL + '/api/',
   headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json;charset=UTF-8",
+    'Content-Type': 'application/json;charset=UTF-8',
   },
   transformRequest: [
     function (data) {
       //由于使用的 form-data传数据所以要格式化
-      delete data.Authorization;
-      data = qs.stringify(data);
-      return data;
+      delete data.Authorization
+      data = qs.stringify(data)
+      return data
     },
   ],
 })
@@ -42,28 +31,28 @@ const axiosInstance: AxiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     if (response.headers.authorization) {
-      localStorage.setItem("app_token", response.headers.authorization);
+      localStorage.setItem('app_token', response.headers.authorization)
     } else if (response.data && response.data.token) {
-      localStorage.setItem("app_token", response.data.token)
+      localStorage.setItem('app_token', response.data.token)
     }
 
     if (response.status === 200) {
-      return response;
+      return response
     }
-    showMessage(response.status);
-    return response;
+    showMessage(response.status)
+    return response
   },
   // 请求失败
   (error: any) => {
-    const { response } = error;
+    const { response } = error
     if (response) {
       // 请求已发出，但是不在2xx的范围
-      showMessage(response.status);
-      return Promise.reject(response.data);
+      showMessage(response.status)
+      return Promise.reject(response.data)
     }
-    Message.warning("网络连接异常,请稍后再试!");
+    showMessage('网络连接异常,请稍后再试!')
   }
-);
+)
 
 // axios实例拦截请求
 axiosInstance.interceptors.request.use(
@@ -79,7 +68,35 @@ axiosInstance.interceptors.request.use(
   }
 )
 
-export default axios;
+const request = <T = any>(config: AxiosRequestConfig, options?: AxiosRequestConfig): Promise<T> => {
+  if (typeof config === 'string') {
+    if (!options) {
+      return axiosInstance.request<T, T>({
+        url: config,
+      });
+      // throw new Error('请配置正确的请求参数');
+    } else {
+      return axiosInstance.request<T, T>({
+        url: config,
+        ...options,
+      });
+    }
+  } else {
+    return axiosInstance.request<T, T>(config);
+  }
+};
+export function get<T = any>(config: AxiosRequestConfig, options?: AxiosRequestConfig): Promise<T> {
+  return request({ ...config, method: 'GET' }, options);
+}
+
+export function post<T = any>(
+  config: AxiosRequestConfig,
+  options?: AxiosRequestConfig,
+): Promise<T> {
+  return request({ ...config, method: 'POST' }, options);
+}
+export default request;
+export type { AxiosInstance, AxiosResponse };
 /**
  * @description: 用户登录案例
  * @params {ILogin} params

@@ -1,14 +1,25 @@
-/*
- * @GitHub: https://github.com/MaleWeb/fast-vue3
- * @version: 
- * @Author: 扫地盲僧
- * @Date: 2022-01-21 17:03:13
- * @LastEditors: your name
- * @LastEditTime: 2022-01-25 12:39:41
- */
+const fs = require('fs')
+function getFolder(path) {
+    let components = []
+    const files = fs.readdirSync(path)
+    files.forEach(function (item) {
+        let stat = fs.lstatSync(path + '/' + item)
+        if (stat.isDirectory() === true && item != 'components') {
+            components.push(path + '/' + item)
+            components.push.apply(components, getFolder(path + '/' + item))
+        }
+    })
+    return components
+}
 module.exports = {
-    description: '创建全局状态',
+    description: '创建全局模块化状态',
     prompts: [
+        {
+            type: 'list',
+            name: 'path',
+            message: '请选择页面创建目录',
+            choices: getFolder('src/store')
+        },
         {
             type: 'input',
             name: 'name',
@@ -22,12 +33,16 @@ module.exports = {
             }
         }
     ],
-    actions: () => {
+    actions: (data) => {
         const actions = [
             {
                 type: 'add',
-                path: 'src/store/modules/{{camelCase name}}.js',
+                path: `${data.path}/{{camelCase name}}/index.ts`,
                 templateFile: 'plop-tpls/store/index.hbs'
+            },
+            {
+                type: 'add',
+                path: `${data.path}/{{camelCase name}}/types.ts`,
             }
         ]
         return actions

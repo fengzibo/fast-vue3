@@ -1,38 +1,31 @@
-<!--
- * @GitHub: https://github.com/MaleWeb/fast-vue3
- * @version: 
- * @Author: 扫地盲僧
- * @Date: 2022-01-19 16:19:27
- * @LastEditors: BlindMonk
- * @LastEditTime: 2022-01-22 10:24:29
--->
 <template>
-  <div id="app">
-    <RouterView v-if="isRouterAlive" />
-  </div>
+  <router-view></router-view>
 </template>
 <script setup lang="ts">
-import { ref, provide, nextTick, watch } from "vue"
-import { compileStyle } from "vue/compiler-sfc"
-import { useSettingsStore } from "./store/modules/settings"
-const settingsStore = useSettingsStore()
-console.log(settingsStore.title, "测试全局store")
+// import { useAppStore } from './store/modules/app'
+// const appStore = useAppStore()
 
 
-provide('reload', reload)
-function reload() {
-  isRouterAlive.value = false
-  nextTick(() => (isRouterAlive.value = true))
-}
+// provide('reload', reload)
+// function reload() {
+//   isRouterAlive.value = false
+//   nextTick(() => (isRouterAlive.value = true))
+// }
 
-const isRouterAlive = ref(true);
+// const isRouterAlive = ref(true)
 
-watch(() => settingsStore.title, () => {
-  let title = settingsStore.title
-  document.title = title ? `${title} - ${import.meta.env.VITE_APP_TITLE}` : import.meta.env.VITE_APP_TITLE
-}, {
-  immediate: true
-})
+// watch(
+//   () => appStore.title,
+//   () => {
+//     const title: string = appStore.title
+//     document.title = title
+//       ? `${title} - ${import.meta.env.VITE_APP_TITLE}`
+//       : import.meta.env.VITE_APP_TITLE
+//   },
+//   {
+//     immediate: true,
+//   }
+// )
 </script>
 
 <style>

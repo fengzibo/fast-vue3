@@ -1,13 +1,14 @@
-/*
- * @GitHub: https://github.com/MaleWeb/fast-vue3
- * @version:
- * @Author: 扫地盲僧
- * @Date: 2022-01-19 21:11:23
- * @LastEditors: BlindMonk
- * @LastEditTime: 2022-01-19 22:33:26
- */
-import request from "./http/axios"
-const getGithubVersion = (url: string) => {
-  return request(url)
-};
-export default getGithubVersion;
+const path = require('path')
+const fs = require('fs')
+export const getFolder = (path: any) => {
+  let components: Array<string> = []
+  const files = fs.readdirSync(path)
+  files.forEach(function (item: string) {
+    let stat = fs.lstatSync(path + '/' + item)
+    if (stat.isDirectory() === true && item != 'components') {
+      components.push(path + '/' + item)
+      components.push.apply(components, getFolder(path + '/' + item))
+    }
+  })
+  return components
+}
